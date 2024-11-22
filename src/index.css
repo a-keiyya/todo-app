@@ -4,7 +4,9 @@
 
 body {
   font-size: 18px;
+  font-family: "Josefin Sans", serif;
   background-color: linear-gradient hsl(192, 100%, 67%) to hsl(280, 87%, 65%);
   background-image: url("../src/assets/images/bg-desktop-light.jpg");
   background-repeat: no-repeat;
+  background-size: contain;
 }
