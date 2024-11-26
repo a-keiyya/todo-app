@@ -1,11 +1,34 @@
 import Header from "../src/components/Header";
-import { todos } from "../data";
+import { tasks } from "../data";
+import { useState } from "react";
 
 function App() {
+  const [todos, setTodos] = useState([...tasks]);
+  const [task, setTask] = useState("");
+  const [isCompleted, setIsCompleted] = useState(false);
+
   function handleSubmit(e) {
     e.preventDefault();
 
-    console.log("Hello World!");
+    if (task.trim()) {
+      const newTask = {
+        id: Date.now(),
+        title: task,
+        completed: isCompleted,
+      };
+
+      setTodos((prevTodos) => [...prevTodos, newTask]);
+
+      setTask(" ");
+    }
+  }
+
+  function handleCheckboxChange(id) {
+    setTodos((prevTodos) =>
+      prevTodos.map((todo) =>
+        todo.id === id ? { ...todo, completed: !todo.completed } : todo
+      )
+    );
   }
 
   return (
@@ -14,14 +37,20 @@ function App() {
         <Header />
         {/* Input */}
         <form
-          onKeyDown={(e) => (e.keyCode === 13 ? handleSubmit() : null)}
+          onKeyDown={(e) => (e.keyCode === 13 ? handleSubmit(e) : null)}
           className="flex bg-veryLightGray p-3 rounded-md gap-4 w-full"
         >
-          <input type="checkbox" name="" id="" />
+          <input
+            type="checkbox"
+            name=""
+            id=""
+            onChange={(e) => setIsCompleted(e.target.checked)}
+          />
           <input
             type="text"
             className="outline-none border-0 w-full bg-veryLightGray text-veryDarkGrayishBlue"
             placeholder="Create a new todo..."
+            onChange={(e) => setTask(e.target.value)}
           />
         </form>
         {/* Todos */}
@@ -32,7 +61,12 @@ function App() {
               className="flex items-center justify-start w-full  gap-3  border-b border-dotted  border-b-veryLightGrayishBlue"
               key={todo.id}
             >
-              <input type="checkbox" name="" id="" />
+              <input
+                type="checkbox"
+                name=""
+                id=""
+                onChange={() => handleCheckboxChange(todo.id)}
+              />
               <p
                 className={
                   todo.completed
