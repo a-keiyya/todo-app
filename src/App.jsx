@@ -1,11 +1,24 @@
 import Header from "../src/components/Header";
 import { tasks } from "../data";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 function App() {
   const [todos, setTodos] = useState([...tasks]);
   const [task, setTask] = useState("");
   const [isCompleted, setIsCompleted] = useState(false);
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    const storedTodos = JSON.parse(localStorage.getItem("todos"));
+    if (storedTodos) {
+      setTodos(storedTodos);
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("todos", JSON.stringify(todos));
+    setCount(todos.length);
+  }, [todos]);
 
   function handleSubmit(e) {
     e.preventDefault();
@@ -18,8 +31,8 @@ function App() {
       };
 
       setTodos((prevTodos) => [...prevTodos, newTask]);
-
-      setTask(" ");
+      setTask("");
+      setIsCompleted(false);
     }
   }
 
@@ -29,6 +42,14 @@ function App() {
         todo.id === id ? { ...todo, completed: !todo.completed } : todo
       )
     );
+  }
+
+  function clearCompleted() {
+    setTodos((prevTodos) => {
+      const updatedTodos = prevTodos.filter((todo) => !todo.completed);
+      localStorage.setItem("todos", JSON.stringify(updatedTodos));
+      return updatedTodos;
+    });
   }
 
   return (
@@ -42,8 +63,6 @@ function App() {
         >
           <input
             type="checkbox"
-            name=""
-            id=""
             onChange={(e) => setIsCompleted(e.target.checked)}
           />
           <input
@@ -51,20 +70,18 @@ function App() {
             className="outline-none border-0 w-full bg-veryLightGray text-veryDarkGrayishBlue"
             placeholder="Create a new todo..."
             onChange={(e) => setTask(e.target.value)}
+            value={task} // Ensuring task state is tied to the input value
           />
         </form>
         {/* Todos */}
         <ul className="bg-veryLightGray shadow-lg rounded-md w-full p-3 space-y-3 text-base">
-          {/* Todo */}
           {todos.map((todo) => (
             <li
-              className="flex items-center justify-start w-full  gap-3  border-b border-dotted  border-b-veryLightGrayishBlue"
               key={todo.id}
+              className="flex items-center justify-start w-full gap-3 border-b border-dotted border-b-veryLightGrayishBlue"
             >
               <input
                 type="checkbox"
-                name=""
-                id=""
                 onChange={() => handleCheckboxChange(todo.id)}
               />
               <p
@@ -78,16 +95,14 @@ function App() {
               </p>
             </li>
           ))}
-
-          {/* Dashboard */}
           <div className="flex items-center justify-between text-darkGrayishBlue text-sm">
-            <p>5 items left</p>
+            <p>{count} items left</p>
             <div className="flex gap-3">
               <button className="text-brightBlue">All</button>
               <button>Active</button>
               <button>Completed</button>
             </div>
-            <button>Clear Completed</button>
+            <button onClick={clearCompleted}>Clear Completed</button>
           </div>
         </ul>
       </div>
